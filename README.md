@@ -71,5 +71,3 @@ For any questions, issues, or suggestions, feel free to contact the author at [e
 ## Conclusion
 
 We hope that this script helps you keep your macOS computer clean and optimized. Thank you for your interest and support!
-
-*Note: This readme template is provided as a guide and should be customized to fit the specific requirements of your project.*
