@@ -13,7 +13,7 @@ print_colored_text "35" "                   DISCLAIMER                    "
 print_colored_text "35" "================================================="
 echo ""
 echo "This script is provided as-is, without any warranty or guarantee."
-echo "The author of this script, Noordjonge, takes no responsibility for any damage or loss"
+echo "The author of this script, takes no responsibility for any damage or loss"
 echo "caused by the use or misuse of this script."
 echo ""
 echo "The script performs various system operations that can modify your system."
@@ -73,29 +73,16 @@ renew_spotlight_index() {
 	echo ""
 }
 
-# Function to change DNS server IPV4 and IPV6
-change_dns_server() {
-	print_colored_text "36" "Do you want to change the DNS servers to Google DNS? (yes/no): "
-	read -r dns_confirmation
-
-	if [ "$dns_confirmation" = "yes" ]; then
-		print_colored_text "36" "Changing DNS server to Google DNS..."
-		networksetup -setdnsservers Wi-Fi 8.8.8.8 8.8.4.4
-		networksetup -setdnsservers Wi-Fi "2001:4860:4860::8888" "2001:4860:4860::8844"
-		print_colored_text "32" "DNS servers changed to Google DNS successfully."
-	else
-		print_colored_text "33" "Enter the preferred DNS server (IPv4): "
-		read -r ipv4_dns_server
-		print_colored_text "33" "Enter the preferred DNS server (IPv6): "
-		read -r ipv6_dns_server
-
-		print_colored_text "36" "Changing DNS server to $ipv4_dns_server (IPv4) and $ipv6_dns_server (IPv6)..."
-		networksetup -setdnsservers Wi-Fi $ipv4_dns_server $ipv6_dns_server
-		print_colored_text "32" "DNS servers changed successfully."
-	fi
-
+# Function to clear DNS cache
+clear_dns_cache() {
+	print_colored_text "36" "Clearing DNS cache..."
+	sudo dscacheutil -flushcache
+	sudo killall -HUP mDNSResponder
+	print_colored_text "32" "DNS cache cleared successfully."
 	echo ""
 }
+
+√
 
 # Function to run Internet speedtest
 run_speedtest() {
@@ -121,27 +108,67 @@ run_speedtest() {
 
 # Function to delete private data
 delete_private_data() {
-	print_colored_text "36" "Deleting private data..."
+	print_colored_text "$CYAN" "Deleting private data..."
 
-	echo "This function will delete the following items:"
-	echo "1. Browser history"
-	echo "2. Cookies"
-	echo "3. Saved passwords"
-	echo "4. Download history"
-	echo "5. Recent documents"
+	echo "WARNING: By deleting private data, the following information will be permanently deleted and cannot be recovered:"
+	echo "- Browsing history"
+	echo "- Cookies"
+	echo "- Download history"
+	echo "- Cache files"
+	echo "- Form autofill data"
+	echo "- Website data"
+	echo ""
+	echo "Please note that this action cannot be undone."
+	echo ""
+	echo "DISCLAIMER: The author of this script does not assume any liability for the deletion of private data. It is your responsibility to ensure that you have a backup of any important data before proceeding."
 	echo ""
 
-	read -p "Are you sure you want to proceed? (yes/no): " delete_confirmation
+	read -p "Do you want to proceed and delete private data? (yes/no): " private_data_confirmation
 
-	if [ "$delete_confirmation" = "yes" ]; then
-		print_colored_text "36" "Deleting private data..."
-		# Add commands to delete private data here
-		print_colored_text "32" "Private data deleted successfully."
+	if [ "$private_data_confirmation" = "yes" ]; then
+		echo ""
+		print_colored_text "$RED" "Deleting private data..."
+		
+		# Delete cookies in Safari
+		defaults write com.apple.Safari ClearBrowsingHistoryOnQuit -bool true
+		rm -rf ~/Library/Cookies/com.apple.Safari.SafeBrowsing.binarycookies
+		rm -rf ~/Library/Cookies/Cookies.binarycookies
+
+		# Delete cookies in Firefox (if installed)
+		if [ -d "/Applications/Firefox.app" ]; then
+			/Applications/Firefox.app/Contents/MacOS/firefox --setDefaultBrowser -ProfileManager
+			firefox_profile_path=$(find ~/Library/Application\ Support/Firefox/Profiles -maxdepth 1 -type d -name "*.default")
+			rm -rf "$firefox_profile_path"/cookies.sqlite
+		fi
+
+		# Delete cookies in Google Chrome (if installed)
+		if [ -d "/Applications/Google Chrome.app" ]; then
+			/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --delete-profile-data
+		fi
+
+		# Delete cookies in Opera (if installed)
+		if [ -d "/Applications/Opera.app" ]; then
+			/Applications/Opera.app/Contents/MacOS/Opera --delete-private-data
+		fi
+
+		# Delete cookies in Microsoft Edge (if installed)
+		if [ -d "/Applications/Microsoft Edge.app" ]; then
+			/Applications/Microsoft\ Edge.app/Contents/MacOS/Microsoft\ Edge --delete-profile-data
+		fi
+
+		# Delete other private data in Safari
+		rm -rf ~/Library/Caches/com.apple.Safari
+		rm -rf ~/Library/Caches/com.apple.WebKit.Networking
+		rm -rf ~/Library/Safari/AutoFill*
+		rm -rf ~/Library/Safari/Databases
+		rm -rf ~/Library/Safari/LocalStorage
+
+		print_colored_text "$GREEN" "Private data deleted successfully."
+		echo ""
 	else
-		print_colored_text "31" "Private data deletion canceled."
+		print_colored_text "$YELLOW" "Private data remains unchanged."
+		echo ""
 	fi
-
-	echo ""
 }
 
 # Function to perform disk space analysis
@@ -166,35 +193,42 @@ display_system_information() {
 }
 
 # Main menu
-print_colored_text "33" "==================== MAIN MENU ===================="
-echo "Please select an option:"
-echo "1. Clean system cache"
-echo "2. Empty trash"
-echo "3. Check disk permissions"
-echo "4. Renew Spotlight index"
-echo "5. Change DNS server"
-echo "6. Run Internet speedtest"
-echo "7. Delete private data"
-echo "8. Analyze disk space"
-echo "9. Check for outdated software"
-echo "10. Display system information"
-echo "11. Exit"
-echo ""
+while true; do
+	print_colored_text "33" "==================== MAIN MENU ===================="
+	echo "Please select an option:"
+	echo "1. Clean system cache"
+	echo "2. Empty trash"
+	echo "3. Check disk permissions"
+	echo "4. Renew Spotlight index"
+	echo "5. Clear DNS cache"
+	echo "6. Change DNS server"
+	echo "7. Run Internet speedtest"
+	echo "8. Delete private data"
+	echo "9. Analyze disk space"
+	echo "10. Check for outdated software"
+	echo "11. Display system information"
+	echo "12. Exit"
+	echo ""
 
-read -p "Enter your choice (1-11): " choice
-echo ""
+	read -p "Enter your choice (1-12): " choice
+	echo ""
 
-case $choice in
-	1) clean_system_cache ;;
-	2) empty_trash ;;
-	3) check_disk_permissions ;;
-	4) renew_spotlight_index ;;
-	5) change_dns_server ;;
-	6) run_speedtest ;;
-	7) delete_private_data ;;
-	8) analyze_disk_space ;;
-	9) check_outdated_software ;;
-	10) display_system_information ;;
-	11) print_colored_text "32" "Exiting..."; exit ;;
-	*) print_colored_text "31" "Invalid choice. Please select a valid option." ;;
-esac
+	case $choice in
+		1) clean_system_cache ;;
+		2) empty_trash ;;
+		3) check_disk_permissions ;;
+		4) renew_spotlight_index ;;
+		5) clear_dns_cache ;;
+		6) change_dns_server ;;
+		7) run_speedtest ;;
+		8) delete_private_data ;;
+		9) analyze_disk_space ;;
+		10) check_outdated_software ;;
+		11) display_system_information ;;
+		12) print_colored_text "32" "Exiting..."; exit ;;
+		*) print_colored_text "31" "Invalid choice. Please select a valid option." ;;
+	esac
+
+	read -p "Press Enter to return to the main menu."
+	echo ""
+done
