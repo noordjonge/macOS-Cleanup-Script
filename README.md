@@ -1,5 +1,10 @@
 # System Maintenance Script
 
+## Author
+Sebastian Palencsar
+
+Version: 0.3 Beta
+
 ## Overview
 
 This Python script is designed to perform various system maintenance tasks on macOS version 10.0 or higher. It includes functionalities such as cleaning system cache, emptying trash, checking disk permissions, renewing the Spotlight index, clearing DNS cache, changing DNS servers, running an Internet speed test, deleting private data, analyzing disk space, checking for outdated software, and displaying system information.
@@ -60,7 +65,7 @@ To run this script, Python must be installed on your macOS system. Follow these 
 
 If you encounter issues, have suggestions, or want to contribute to the script's development, please feel free to open an issue or submit a pull request on the 
 
-[GitHub repository](https://github.com/your_username/your_repository).
+[GitHub repository](https://github.com/noordjonge/macOS-Cleanup-Script).
 
 ## License
 
