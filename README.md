@@ -22,7 +22,6 @@ Before using this script, please read the disclaimer and liability notice in the
 
 To run this script, Python must be installed on your macOS system. Follow these steps to install Python:
 
-```bash
 1. Open a terminal window.
 
 2. Check if Python is already installed by running the following command:
@@ -46,7 +45,6 @@ To run this script, Python must be installed on your macOS system. Follow these 
    python3 --version
    ```
    You should see the Python version number.
-```
 
 ## Running the Script
 
